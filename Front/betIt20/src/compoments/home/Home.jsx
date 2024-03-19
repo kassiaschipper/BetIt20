@@ -1,7 +1,10 @@
 import styled from "styled-components";
 import Logo from "../../assets/images/Logo.png";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const navigate = useNavigate();
+
   return (
     <>
       <Wrapper>
@@ -14,7 +17,7 @@ export default function Home() {
           <h2>Prepare-se para se divertir e ganhar prêmios!</h2>
         </TitleWrapper>
         <ButtonWrapper>
-          <div onClick={() => alert("bora apostar")}>Apostar</div>
+          <div onClick={() => navigate("/registration")}>Apostar</div>
         </ButtonWrapper>
       </Wrapper>
     </>
