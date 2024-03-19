@@ -11,4 +11,9 @@ const getUsers = async () => {
   return await connection.query(`SELECT * FROM "User"`);
 };
 
-export { postUser, getUsers };
+const getOneUser = async (cpf) => {
+  console.log(cpf)
+  return await connection.query(`SELECT * FROM "User" WHERE cpf = $1`,[cpf]);
+};
+
+export { postUser, getUsers, getOneUser };
