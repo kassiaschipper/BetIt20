@@ -9,4 +9,16 @@ function postUser(body){
     return promisse;
 }
 
-export {postUser}
+function postBet(userId, body){
+    console.log(`postBet ${body}`)
+    const promisse = axios.post(`${BASE_URL}/bet/${userId}`,body);
+    return promisse;
+}
+
+function getAllBets(){
+    console.log("entra getAllBets")
+    const promisse = axios.get(`${BASE_URL}/bet`);
+    return promisse
+}
+
+export {postUser, postBet, getAllBets}

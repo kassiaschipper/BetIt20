@@ -2,14 +2,18 @@ import styled from "styled-components";
 import Logo from "../../assets/images/Logo.png";
 import { useState } from "react";
 import { postUser } from "../../service/betIt20Service";
-import Bet from "../bet/Bet"
+import Bet from "../bet/Bet";
+import { useNavigate } from "react-router-dom";
 
 export default function Registration() {
   const [name, setName] = useState("");
   const [cpf, setCpf] = useState("");
-  const [message, setMessage] = useState("Dados cadastrado.Realize a aposta:")
+  const [message, setMessage] = useState("");
   const [disabledInput, setDisabledInput] = useState(false);
   const [betBox, setBetBox] = useState(false);
+  const [userId, setUserId] = useState(0);
+
+  const navigate = useNavigate()
 
   function sendForm(e) {
     e.preventDefault();
@@ -22,25 +26,29 @@ export default function Registration() {
 
     postUser(body)
       .then((res) => {
-        if(res.data === "Usuário já cadastrado"){
-          setMessage("Dados já cadastrado. Realize a aposta:")
-        }
+        setMessage(res.data.message);
+        console.log(res.data.message);
+        // if(res.data.message === "Usuário já cadastrado"){
+        //   setMessage("Usuário já cadastrado, realize a aposta")
+        // }
         resetForm();
         setBetBox(true);
+        // Tem que retornar no data um objeto {"message": "Usuário criado/já existe", "userId": 1232141234}
+        setUserId(res.data.userId);
       })
       .catch((res) => {
         console.log(res.data);
         return;
       });
-    }
-    
+  }
+
   function resetForm() {
     setName("");
     setCpf("");
     setDisabledInput(false);
     setBetBox(false);
   }
-  
+
   return (
     <>
       <Wrapper>
@@ -48,6 +56,9 @@ export default function Registration() {
           {" "}
           <img src={Logo} />{" "}
         </LogoWrapper>
+        <DrawScreenButtonWrapper>
+          <button onClick={()=>navigate("/draw")}>Inciar sorteio</button>
+        </DrawScreenButtonWrapper>
         <TitleWrapper>
           <h1>
             Comece digitando nome e <br></br> CPF do apostdor
@@ -55,36 +66,41 @@ export default function Registration() {
           <h2>Depois informe os 5 números da aposta!</h2>
         </TitleWrapper>
         <form onSubmit={sendForm}>
-        <FormWrapper>
-          <p>Nome</p>
-          <input
-            type="text"
-            name="nome"
-            placeholder="Jane Doe"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            disabled={disabledInput}
-            required
-          />
-          <p>CPF</p>
-          <input
-            type="text"
-            name="cpf"
-            placeholder="xxxxxxxxxxx"
-            min={11}
-            max={11}
-            value={cpf}
-            onChange={(e) => setCpf(e.target.value)}
-            disabled={disabledInput}
-            required
-          />
-        <ButtonWrapper>
-          <button type="submit" disabled={disabledInput}>Confirmar dados</button>
-        </ButtonWrapper>
-        </FormWrapper>
+          <FormWrapper>
+            <p>Nome</p>
+            <input
+              type="text"
+              name="nome"
+              placeholder="Jane Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={disabledInput}
+              required
+            />
+            <p>CPF</p>
+            <input
+              type="text"
+              name="cpf"
+              placeholder="xxxxxxxxxxx"
+              min={11}
+              max={11}
+              value={cpf}
+              onChange={(e) => setCpf(e.target.value)}
+              disabled={disabledInput}
+              required
+            />
+            <ButtonWrapper>
+              <button type="submit" disabled={disabledInput}>
+                Confirmar dados
+              </button>
+            </ButtonWrapper>
+          </FormWrapper>
         </form>
-        {betBox === true ? <Bet betBox={betBox} setBetBox={setBetBox}/> : "" }
-        
+        {betBox === true ? (
+          <Bet betBox={betBox} setBetBox={setBetBox} userId={userId} />
+        ) : (
+          ""
+        )}
       </Wrapper>
     </>
   );
@@ -96,7 +112,8 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   align-content: center;
-  margin:0 auto;
+  margin: 0 auto;
+  
 `;
 
 const LogoWrapper = styled.div`
@@ -192,4 +209,29 @@ const ButtonWrapper = styled.div`
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
   cursor: pointer;
+`;
+const DrawScreenButtonWrapper = styled.div`
+  width: 10%;
+  width: 10%;
+  height: 25%;
+  display: flex;
+  position: fixed;
+  right: 15%;
+  bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+
+  button{
+    width: 10rem;
+    height: 2rem;
+    background-color: transparent;
+    border: 5px solid white;
+    color: white;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
 `;
