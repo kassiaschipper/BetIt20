@@ -15,8 +15,11 @@ const validateUser = async (req, res, next) => {
 
     return res.status(422).send(error);
   }
-
+  res.locals.user = { cpf }; 
+ 
   next();
 };
+
+
 
 export { validateUser };
