@@ -1,41 +1,119 @@
 import { useState } from "react";
 import styled from "styled-components";
+import { postBet } from "../../service/betIt20Service";
 
-export default function Bet({betBox, setBetBox}) {
-  const [numbers, setNumbers] = useState(["", "", "", "", ""]);
+export default function Bet({ betBox, setBetBox, userId }) {
+  const [firstNumber, setFirstNumber] = useState();
+  const [secondNumber, setSecondNumber] = useState();
+  const [thirdNumber, setThirdNumber] = useState();
+  const [fourthNumber, setFourthNumber] = useState();
+  const [fifthNumber, setFifthNumber] = useState();
+  const [disabledInput, setDisabledInput] = useState(false);
 
-  const handleChange = (index, value) => {
-    const updateNumbers = [...numbers];
-    updateNumbers[index] = value;
-    setNumbers(updateNumbers);
-  };
-
+  const strBetNumbersList = [
+    firstNumber,
+    secondNumber,
+    thirdNumber,
+    fourthNumber,
+    fifthNumber,
+  ];
+  
+  function sendForm(e) {
+    e.preventDefault();
+    setDisabledInput(true);
+    const betNumbersList = strBetNumbersList.map((value) => Number(value));
+    
+    postBet(userId, betNumbersList)
+      .then((res) => {
+        // console.log("entra", body)
+        console.log(res.data);
+        resetForm();
+      })
+      .catch((res) => {
+        console.log(res);
+        return;
+      });
+  }
+  function resetForm() {
+    setFirstNumber();
+    setSecondNumber();
+    setThirdNumber();
+    setFourthNumber();
+    setFifthNumber();
+  }
   return (
     <>
       <BoxWrapper>
         {" "}
         <p>Escolha 5 números de 1 a 50</p>
         <BetWrapper>
-          <form action="">
-            {numbers.map((number, index) => (
-              <input
-                type="number"
-                name={`number-${index}`}
-                max={50}
-                min={1}
-                placeholder=""
-                value={number}
-                onChange={(e) => handleChange(index, e.target.value)}
-                required
-              />
-            ))}
+          <form onSubmit={sendForm}>
+            <input
+              type="number"
+              name="firstNumber"
+              max={50}
+              min={1}
+              placeholder=""
+              value={firstNumber}
+              onChange={(e) => setFirstNumber(e.target.value)}
+              disabled={disabledInput}
+              required
+            />
+            <input
+              type="number"
+              name="secondNumber"
+              max={50}
+              min={1}
+              placeholder=""
+              value={secondNumber}
+              onChange={(e) => setSecondNumber(e.target.value)}
+              disabled={disabledInput}
+              required
+            />
+            <input
+              type="number"
+              name="thirdNumber"
+              max={50}
+              min={1}
+              placeholder=""
+              value={thirdNumber}
+              onChange={(e) => setThirdNumber(e.target.value)}
+              disabled={disabledInput}
+              required
+            />
+            <input
+              type="number"
+              name="fourthNumber"
+              max={50}
+              min={1}
+              placeholder=""
+              value={fourthNumber}
+              onChange={(e) => setFourthNumber(e.target.value)}
+              disabled={disabledInput}
+              required
+            />
+            <input
+              type="number"
+              name="fifthNumber"
+              max={50}
+              min={1}
+              placeholder=""
+              value={fifthNumber}
+              onChange={(e) => setFifthNumber(e.target.value)}
+              disabled={disabledInput}
+              required
+            />
+            <button type="submit" disabled={disabledInput}>
+              teste
+            </button>
           </form>
         </BetWrapper>
         <ButtonWrapper>
-          <button>Enviar</button>
+          <button type="submit">Enviar</button>
           <button onClick={() => setBetBox(!betBox)}>Sair</button>
         </ButtonWrapper>
       </BoxWrapper>
+      
     </>
   );
 }
@@ -92,7 +170,7 @@ const ButtonWrapper = styled.div`
   width: 40%;
   display: flex;
   justify-content: space-around;
-  
+
   button {
     width: 4rem;
     height: 2rem;
