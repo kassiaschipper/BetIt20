@@ -11,4 +11,13 @@ const getAllBets = async() => {
   return await connection.query(`SELECT * FROM "Bet"`);
 }
 
-export {postBet, getAllBets}
+const getBetByNumbers = async (drawnNumbers) => {
+  console.log("Numeros sorteados  " + drawnNumbers)
+  return await connection.query(`Select * FROM "Bet" WHERE numberslist = $1`,[drawnNumbers]);
+}
+
+const getLastBetByUserId = async (userId) => {
+  return await connection.query(`SELECT * FROM "Bet" WHERE "userId" = $1 ORDER BY "id" DESC LIMIT 1`,[userId]);
+};
+
+export {postBet, getAllBets, getBetByNumbers, getLastBetByUserId}

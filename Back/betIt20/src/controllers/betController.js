@@ -5,7 +5,8 @@ async function insertBet(req, res) {
 
   try {
     const insertBet = await betRepository.postBet(userId, req.body);
-    res.sendStatus(201);
+    const lastBet = await betRepository.getLastBetByUserId(userId);
+    res.status(201).send(lastBet.rows);
   } catch (error) {
     console.log(error);
     return res.sendStatus(500);
@@ -22,4 +23,16 @@ async function getBetList(req, res) {
   }
 }
 
-export { getBetList, insertBet };
+async function findBetWinner(req, res) {
+  const drawnNumbers = req.body;
+
+  try {
+    const findBet = await betRepository.getBetByNumbers(drawnNumbers);
+    res.status(200).send(findBet.rows);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+}
+
+export { getBetList, insertBet, findBetWinner };
