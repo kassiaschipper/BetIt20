@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { postBet } from "../../service/betIt20Service";
 
@@ -9,7 +9,8 @@ export default function Bet({ betBox, setBetBox, userId }) {
   const [fourthNumber, setFourthNumber] = useState();
   const [fifthNumber, setFifthNumber] = useState();
   const [disabledInput, setDisabledInput] = useState(false);
-
+  const [betId, setBetId] = useState(null);
+   
   const strBetNumbersList = [
     firstNumber,
     secondNumber,
@@ -17,29 +18,36 @@ export default function Bet({ betBox, setBetBox, userId }) {
     fourthNumber,
     fifthNumber,
   ];
-  
+  useEffect(() => {
+    if(betId !== null){
+      alert(`Aposta realizada com sucesso, por favor guarde o número de registro "${betId}" para acompanhar a apuração`)
+    }
+  },[betId])
+
+    
   function sendForm(e) {
     e.preventDefault();
     setDisabledInput(true);
     const betNumbersList = strBetNumbersList.map((value) => Number(value));
     
     postBet(userId, betNumbersList)
-      .then((res) => {
-        // console.log("entra", body)
-        console.log(res.data);
-        resetForm();
-      })
-      .catch((res) => {
-        console.log(res);
-        return;
-      });
+    .then((res) => {
+      setBetId(res.data[0].id);
+      console.log(betId)
+      resetForm();
+    })
+    .catch((res) => {
+      console.log(res);
+      return;
+    });
   }
   function resetForm() {
-    setFirstNumber();
-    setSecondNumber();
-    setThirdNumber();
-    setFourthNumber();
-    setFifthNumber();
+    setFirstNumber("");
+    setSecondNumber("");
+    setThirdNumber("");
+    setFourthNumber("");
+    setFifthNumber("");
+    setDisabledInput(false)
   }
   return (
     <>
@@ -103,15 +111,15 @@ export default function Bet({ betBox, setBetBox, userId }) {
               disabled={disabledInput}
               required
             />
-            <button type="submit" disabled={disabledInput}>
+            {/* <button type="submit" disabled={disabledInput}>
               teste
-            </button>
-          </form>
-        </BetWrapper>
+            </button> */}
         <ButtonWrapper>
-          <button type="submit">Enviar</button>
+          <button type="submit" disabled={disabledInput} >Enviar</button>
           <button onClick={() => setBetBox(!betBox)}>Sair</button>
         </ButtonWrapper>
+          </form>
+        </BetWrapper>
       </BoxWrapper>
       
     </>
@@ -141,7 +149,7 @@ const BoxWrapper = styled.div`
 const BetWrapper = styled.span`
   width: 30vw;
   height: 10vh;
-
+  
   input {
     width: 40px;
     height: 40px;
@@ -164,12 +172,14 @@ const BetWrapper = styled.span`
       background-color: #007bb822;
     }
   }
+ 
 `;
 
 const ButtonWrapper = styled.div`
-  width: 40%;
+  width: 50%;
   display: flex;
   justify-content: space-around;
+  margin: 0 auto;
 
   button {
     width: 4rem;

@@ -2,11 +2,15 @@ import styled from "styled-components";
 import Logo from "../../assets/images/Logo.png";
 import { useState } from "react";
 import { getAllBets } from "../../service/betIt20Service";
+import { useNavigate } from "react-router-dom";
 
 export default function Draw() {
   const [showNumbers, setShowNumbers] = useState(false);
   const [finalNumbers, setFinalNumbers] = useState([]);
+  const [winnersList, setWinnersList] = useState([]);
+  const [noWinners, setNoWinners] = useState(false);
   const drawnNumbers = [];
+  const navigate = useNavigate();
 
   function drawRandomNumbers() {
     while (drawnNumbers.length < 5) {
@@ -22,19 +26,55 @@ export default function Draw() {
     return drawnNumbers;
   }
 
-  //preciso passar a aposta vencedora para o back e levai para la a logica de comparação
+  //Para testar uma aposta vencedora, usar testNumber com uma aposta que já esteja no banco de dados,
+  //porém nesse caso é preciso ordenar a aposta e coloca-la no formato de string, conforme exemplo abaixo.
+  //Depois é necessário descomentar a linha 57 e comentar a linha 58
+
+  const testNumber = ["2351020"];
+
   function findWinners() {
     getAllBets()
       .then((res) => {
-        const allBets = res.data.map((value) => value.numberslist);
+        const finalBets = [];
+        //const order = [];
+        const listIndexWinners = [];
+        const winners = [];
+
+        //Cria uma array com todos as apostas e seus respectivos "id" e "userId"
+        for (let i = 0; i < res.data.length; i++) {
+          const objeto = res.data[i];
+          objeto.numberslist.sort((a, b) => a - b);
+          finalBets.push([objeto.id, objeto.userId, objeto.numberslist]);
+        }
+
+        //Converte o array de apostas em uma string para facilitar a comparação
+        const strFinalBets = finalBets.map((value) => value[2].join(""));
 
         const drawnNumberInOrder = finalNumbers.sort((a, b) => a - b);
-        console.log(drawnNumberInOrder);
-        const numberListInOrder = allBets.map((value) =>
-          value.sort((a, b) => a - b)
-        );
-        console.log(numberListInOrder);
+        const strDrawnNumbersInOder = drawnNumberInOrder.join("");
 
+        const findWinners = strFinalBets.map((value) =>
+          value.includes(testNumber)
+          //value.includes(strDrawnNumbersInOder)
+        );
+        //console.log(" Vencedores: " + findWinners);
+
+        const indexOfWinnersOnList = findWinners.map((value, index) => {
+          if (value == true) {
+            listIndexWinners.push(index);
+          }
+        });
+
+        listIndexWinners.forEach((index) => {
+          if (finalBets[index]) {
+            winners.push(finalBets[index]);
+          }
+        });
+        setWinnersList(winners);
+
+        if (winnersList.length == 0) {
+          setNoWinners(true);
+        }
       })
       .catch((res) => {
         console.log(res);
@@ -48,6 +88,7 @@ export default function Draw() {
         {" "}
         <img src={Logo} />{" "}
       </LogoWrapper>
+      <NewRoundButtonWrapper><button onClick={()=>navigate("/registration")}>Encerrar rodada</button></NewRoundButtonWrapper>
       <Wrapper>
         <DrawWrapper>
           <button onClick={() => drawRandomNumbers()}>Inciar sorteio</button>
@@ -65,12 +106,30 @@ export default function Draw() {
               ""
             )}
           </CheckBetsWrapper>
+          <WinnersWrapper>
+            {winnersList.length == 0 ? (
+              noWinners == true ? (
+                <p>Sem vencedores nessa rodada</p>
+              ) : (
+                ""
+              )
+            ) : (
+              <p>
+                Parabéns ao(s) vencedor(es)! <br></br> Confira o código das
+                apostas vencedoras :{" "}
+                {winnersList.map((value) => (
+                  <span>{value[0] + "; "}</span>
+                ))}
+              </p>
+            )}
+            </WinnersWrapper>
+
         </DrawWrapper>
+            
       </Wrapper>
     </>
   );
 }
-
 const Wrapper = styled.div`
   width: 30vw;
   height: 100vh;
@@ -163,3 +222,47 @@ const CheckBetsWrapper = styled.div`
     cursor: pointer;
   }
 `;
+const WinnersWrapper = styled.div`
+  width: 90%;
+  height: 30%;
+  margin-top: 05%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  border-radius: 10px;
+  padding-top: 5%;
+
+
+
+  p {
+    color: #007bb8da;
+    font-size: 1.2rem;
+  }
+  span {
+    font-weight: 600;
+  }
+  box-shadow: 4px 2px 4px 4px rgba(0, 0, 0, 0.25);
+`;
+const NewRoundButtonWrapper = styled.div`
+  width: 10%;
+  height: 25%;
+  display: flex;
+  position: fixed;
+  right: 15%;
+  bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+
+  button{
+    width: 10rem;
+    height: auto;
+    background-color: transparent;
+    border: 5px solid white;
+    color: white;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+`

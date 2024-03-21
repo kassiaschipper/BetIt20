@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 export default function Registration() {
   const [name, setName] = useState("");
   const [cpf, setCpf] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState([]);
   const [disabledInput, setDisabledInput] = useState(false);
   const [betBox, setBetBox] = useState(false);
   const [userId, setUserId] = useState(0);
@@ -23,18 +23,20 @@ export default function Registration() {
       name,
       cpf,
     };
-
+    
+    console.log(body)
     postUser(body)
       .then((res) => {
         setMessage(res.data.message);
         console.log(res.data.message);
-        // if(res.data.message === "Usuário já cadastrado"){
-        //   setMessage("Usuário já cadastrado, realize a aposta")
-        // }
+         if(res.data.message === "Usuário já cadastrado"){
+           setMessage([res.data.message,"! ",name, ", ja pode apostar!"]);           
+         }
         resetForm();
         setBetBox(true);
-        // Tem que retornar no data um objeto {"message": "Usuário criado/já existe", "userId": 1232141234}
+        setMessage([`Usuário cadastrado! ${name}, já pode apostar!`]);
         setUserId(res.data.userId);
+        
       })
       .catch((res) => {
         console.log(res.data);
@@ -89,15 +91,16 @@ export default function Registration() {
               disabled={disabledInput}
               required
             />
-            <ButtonWrapper>
-              <button type="submit" disabled={disabledInput}>
+            <ButtonWrapper >
+              <button type="submit" disabled={disabledInput} >
                 Confirmar dados
               </button>
             </ButtonWrapper>
+            <span>{message.length == 0 ? "" : message}</span> 
           </FormWrapper>
         </form>
         {betBox === true ? (
-          <Bet betBox={betBox} setBetBox={setBetBox} userId={userId} />
+          <Bet betBox={betBox} setBetBox={setBetBox} userId={userId} name={name}/> 
         ) : (
           ""
         )}
@@ -157,6 +160,11 @@ const FormWrapper = styled.div`
   align-items: center;
   font-size: 15px;
 
+  span{
+      margin-top: 4%;
+      color: #007cb8;
+      text-align: center;
+    }
   p {
     width: 20vw;
     color: #007cb8;
@@ -182,6 +190,7 @@ const FormWrapper = styled.div`
       outline: none;
       background-color: #007bb822;
     }
+    
   }
 `;
 
