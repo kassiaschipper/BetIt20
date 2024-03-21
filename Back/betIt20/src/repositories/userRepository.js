@@ -12,11 +12,11 @@ const getUsers = async () => {
 };
 
 const getOneUser = async (cpf) => {
- 
-  return await connection.query(`SELECT * FROM "User" WHERE cpf = $1`,[cpf]);
+   return await connection.query(`SELECT * FROM "User" WHERE cpf = $1`,[cpf]);
 };
+
 
 const getUserId = async (cpf) => {
   return await connection.query(`SELECT id FROM "User" WHERE cpf = $1`, [cpf]);
 }
-export { postUser, getUsers, getOneUser,getUserId };
+export { postUser, getUsers, getOneUser,getUserId};
